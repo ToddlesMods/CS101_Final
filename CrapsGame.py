@@ -63,36 +63,7 @@ class CrapsTable(object):
 	
 	def placeBets(self):
 		#allow players to place bets
-		for player in self.players:
-			print("Hello, " + player.name + "! Here are your current bets:")
-			for bet in player.bets:
-				print(bet + ": $" + str(player.bets[bet]))
-			desire = input("Would you like to place a bet? Yes or No: ")
-			if desire.upper() == "NO":
-				continue
-			elif desire.upper() == "YES":
-				while True:
-					bet_name = str(input("Which bet? Please use a name used in your current bets above: ")).upper()
-					bet_amounta = input("How much?: ")
-					if bet_amounta.isnumeric():
-						bet_amount = float(bet_amounta)
-						if bet_name in self.bet_names:
-							player.placeBet(bet_name,bet_amount)
-						else:
-							print("That's not one of the bets!")
-					else:
-						print("That doesn't work!")
-					keep_going = input("Would you like to place another bet? Yes or No: ")
-					if keep_going.upper() == "YES":
-						print("OK!")
-					elif keep_going.upper() == "NO":
-						print("ok\n")
-						break
-					else:
-						print("We don't have time for this. Next player!\n")
-						break
-			else:
-				print("I didn't get that...your bets stand! moving on!\n")				
+						
 		return
 	
 	def resolveBets(self,type):
