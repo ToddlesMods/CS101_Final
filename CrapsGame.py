@@ -8,27 +8,34 @@ class Gambler(object):
 	def __init__(self,name,cash):
 		self.name = str(name)
 		self.cash = float(cash)
-		self.bets = {"COME LINE":0,"PASS LINE":0,"4":0,"5":0,"6":0,"8":0,"9":0,"10":0}
-		
+		self.bets = {"COME LINE":0.00,"PASS LINE":0.00,"4":0.00,"5":0.00,"6":0.00,"8":0.00,"9":0.00,"10":0.00}
+	
+	#When Gambler requested, output: PLAYER has $CASH
 	def __repr__(self):
 		return '%s has $%.2f' % (self.name, self.cash)
 	
+	#Method to get simulate dice roll and provide the sum of the two dice
 	def rollDice(self):
 		dice = randint(1,6) + randint(1,6)
 		return dice
 	
+	#Method to allow player to place a bet, if they try to place a bet for more than they have, returns a statement letting them know
+	#and letting them know how much cash they have. Does not place any bet if attempted bet higher than cash.
 	def placeBet(self,bet,amount):
 		if self.cash < amount:
-			print("You don't have enough cash for that bet")
+			print("You don't have enough cash for that bet, you have $%.2f" %(self.cash))
 			return
 		else:
 			self.cash -= amount
 			self.bets[bet] += amount
 			return
-		
+	#Method to allow player to remove bet. If the requested amount to close is greater than the bet, bet is closed out for however much
+	#was placed.
 	def removeBet(self,bet,amount):
 		if amount > self.bets[bet]:
-			print("You didn't bet that much. You have $" + str(self.bets[bet]) + " on the " + bet)
+			print("You didn't bet that much. Closing out your bet worth $%.2f" %(self.bets[bet]))
+			self.cash += self.bets[bet]
+			self.bets[bet] = 0.00
 			return
 		else:
 			self.cash += amount
@@ -63,7 +70,7 @@ class CrapsTable(object):
 	
 	def placeBets(self):
 		#allow players to place bets
-						
+		
 		return
 	
 	def resolveBets(self,type):
