@@ -132,9 +132,11 @@ class CrapsTable(object):
 	
 	def removePlayer(self,player_name):
 		print("So long, %s" %(player_name))
-		if self.players[self.roller] is self.players[player_name]:
-			self.roller = self.players[(self.players.index(self.roller)+1)%self.player_count]
-		self.players.pop(player_name,None)
+		index = 0
+		for index in range(0,len(self.players)-1):
+			if self.players[index].name == player_name:
+				del self.players[index]
+				return
 		return
 	
 	def addPlayer(self,player_name,cash):
@@ -157,7 +159,7 @@ class CrapsTable(object):
 			if dice == 7 or dice == 11:
 				print("WINNER!")
 				self.resolveBets("First Roll Win")
-			elif dice == 2 or dice == 12:
+			elif dice == 2 or dice == 12 or dice == 3:
 				print("Sorry, craps!")
 				self.resolveBets("First Roll Loss")
 			else:
