@@ -96,7 +96,7 @@ class CrapsTable(object):
 								newAmount = float(newAmountTxt)
 								player.placeBet(newBet,newAmount)
 								break
-					print("Bet added on %s for $%.2f" %(newBet,newAmountTxt))
+					print("Bet added on %s for $%s" %(newBet,newAmountTxt))
 					time.sleep(1)
 					desire = input("Would you like place another bet? Yes or No?: ")
 				time.sleep(2)
