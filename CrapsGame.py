@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #Creation of a Craps gambling game#
 from random import randint
+import time
 
 #CLASSES:
 #Gambler class for players
@@ -21,7 +22,8 @@ class Gambler(object):
 	
 	#Method to allow player to place a bet, if they try to place a bet for more than they have, returns a statement letting them know
 	#and letting them know how much cash they have. Does not place any bet if attempted bet higher than cash.
-	def placeBet(self,bet,amount):
+	def placeBet(self,InBet,amount):
+		bet = InBet.upper()
 		if self.cash < amount:
 			print("You don't have enough cash for that bet, you have $%.2f" %(self.cash))
 			return
@@ -31,7 +33,8 @@ class Gambler(object):
 			return
 	#Method to allow player to remove bet. If the requested amount to close is greater than the bet, bet is closed out for however much
 	#was placed.
-	def removeBet(self,bet,amount):
+	def removeBet(self,InBet,amount):
+		bet = InBet.upper()
 		if amount > self.bets[bet]:
 			print("You didn't bet that much. Closing out your bet worth $%.2f" %(self.bets[bet]))
 			self.cash += self.bets[bet]
@@ -53,14 +56,17 @@ class CrapsTable(object):
 		self.roller = self.players[0]
 		self.roll_count = 0
 	
+	#Requests roll from player, forces player to roll really, no way to leave until you roll
 	def requestRoll(self):
 		answer = input(self.roller.name + ", are you ready to roll?! Yes or No: ")
-		if answer.upper() == "YES":
+		if answer.upper() in ["YES","Y"]:
 			self.last_roll = self.roller.rollDice()
-			print("You rolled " + str(self.last_roll))
+			print("ROLLING!!!")
+			time.sleep(3)
+			print("You rolled a " + str(self.last_roll))
 			self.roll_count += 1
 			return
-		elif answer.upper() == "NO":
+		elif answer.upper() in ["NO","N"]:
 			print("Come on! We have a game to play!")
 			self.requestRoll()
 			return
@@ -70,7 +76,30 @@ class CrapsTable(object):
 	
 	def placeBets(self):
 		#allow players to place bets
-		
+		for player in self.players:
+			print("Hello, %s. You currently have $%.2f. Here are your current bets:" %(player.name,player.cash))
+			for bet in player.bets:
+				print("%s: $%.2f" %(bet,player.bets[bet]))
+			desire = input("Would you like to place a bet? Yes or No?: ")
+			while True:
+				if desire.upper() not in ["YES","Y"]:
+					print("Ok...NEXT!\n")
+					break
+				else:
+					newBet = input("What bet would you like to place? (Use the names from the list): ").upper()
+					if newBet not in self.bet_names:
+						print("Er...that's not a bet")
+					else:
+						while True:	
+							newAmountTxt = input("How much would you like to bet?: ")
+							if newAmountTxt.isnumeric():
+								newAmount = float(newAmountTxt)
+								player.placeBet(newBet,newAmount)
+								break
+					print("Bet added on %s for $%.2f" %(newBet,newAmountTxt))
+					time.sleep(1)
+					desire = input("Would you like place another bet? Yes or No?: ")
+				time.sleep(2)
 		return
 	
 	def resolveBets(self,type):
@@ -95,11 +124,22 @@ class CrapsTable(object):
 		return
 	
 	def removePlayer(self,player_name):
-		#remove player
+		print("So long, %s" %(player_name))
+		if self.players[self.roller] is self.players[player_name]:
+			self.roller = self.players[(self.players.index(self.roller)+1)%self.player_count]
+		self.players.pop(player_name,None)
 		return
 	
 	def addPlayer(self,player_name,cash):
-		#add player
+		print("Welcome, %s!" %(player_name))
+		if not cash.isnumeric():
+			while True:
+				print("That's not an amount of cash!")
+				cash = input("Give us a real amount: ")
+				if cash.isnumeric():
+					break
+		gamblerNew = Gambler(player_name, int(cash))
+		self.players.append()
 		return
 		
 	def resolveRoll(self):
@@ -128,27 +168,75 @@ class CrapsTable(object):
 				print("Let's keep it going! Payouts!")
 			self.resolveBets("Standard")
 			return
+		
+#Game Class to get the game rolling
+class Game(object):
+	player_list = []
+	player_count = 0
+	
+	def __init__(self):
+		self.gather_players()
+		self.start_game()
+		
+	def gather_players(self):
+		print("Welcome to the Casino! Let's play craps!!!")
+		firstPlayer = input("Let's get started!\nWho is our first player?: ")
+		firstAmounttxt = input("How much money are you starting with?: ")
+		while True:
+			if firstAmounttxt.isnumeric():
+				break
+			firstAmounttxt = input("That's doesn't work!\nHow much money are you starting with?: ")
+		self.player_list.append(Gambler(firstPlayer,float(firstAmounttxt)))
+		self.player_count += 1
+		keepRolling = input("Any more players? Yes or No: ")
+		while True:
+			if keepRolling.upper() not in ["YES","Y"]:
+				break
+			else:
+				playerName = input("Name: ")
+				playerCash = input("Starting Money: ")
+				while True:
+					if playerCash.isnumeric():
+						break
+					playerCash = input("That's not right! Starting Money: ")
+				self.player_list.append(Gambler(playerName,float(playerCash)))
+				self.player_count += 1
+			keepRolling = input("Any more players? Yes or No: ")
+	
+	def start_game(self):
+		print("Here we go!")
+		table = CrapsTable(self.player_list)
+		while True:
+			table.placeBets()
+			table.requestRoll()
+			table.resolveRoll()
+			addPlayers = input("Any new players? Yes or No: ")
+			if addPlayers.upper() in ["YES","Y"]:
+				pName = input("Who is the new player?: ")
+				pCash = input("How much cash are they starting with?: ")
+				table.addPlayer(pName,pCash)
+				self.player_count += 1
+			removePlayers = input ("Any players leaving?")
+			if removePlayers.upper() in ["YES","Y"]:
+				pName = input("Who is leaving?: ")
+				table.removePlayer(pName)
+				self.player_count -= 1
+				if self.player_count <= 0:
+					print("No more players. Good bye!")
+					return
+			keepGoing = input("How are we feeling now? Keep going? Yes or No: ").upper()
+			if keepGoing in ["NO","N"]:
+				print("So long! The Casino is closed!")
+				break
+			else:
+				print("Let's keep going!!!")
+			
+		
+
+		
+	
 
 		
 		
-#************TESTS*************#
-testGambler = Gambler('Mariana',2000)
-testGambler1 = Gambler('Henton',1000)
-testGambler2 = Gambler('Sawyer',100000)
-testTable = CrapsTable([testGambler,testGambler1,testGambler2])
-#print(testGambler)
-#print(testGambler.rollDice())
-#print(testGambler.bets["Come Line"])
-#testGambler.placeBet("Come Line", 100)
-#print(testGambler.bets["Come Line"])
-#testGambler.removeBet("Come Line", 240)
-#print(testGambler.bets["Come Line"])
-#print(testGambler)
-testTable.requestRoll()
-testTable.placeBets()
-print(testGambler.bets)
-print(testGambler1.bets)
-print(testGambler2.bets)
-print(testGambler)
-print(testGambler1)
-print(testGambler2)
+#*************GAME START*********************************
+crapsGame = Game()
