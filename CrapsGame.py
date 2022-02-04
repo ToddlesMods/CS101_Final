@@ -47,14 +47,16 @@ class Gambler(object):
 		
 #Table class for play
 class CrapsTable(object):
-	payout = {"COME LINE":2,"PASS LINE":2,"4":2.8,"5":2.4,"6":2.16,"8":2.16,"9":2.4,"10":2.8}
-	bet_names = ["COME LINE","PASS LINE","4","5","6","8","9","10"]
-	last_roll = 0
+
 	def __init__(self,players):
 		self.players = players
 		self.player_count = len(self.players)
 		self.roller = self.players[0]
 		self.roll_count = 0
+		self.payout = {"COME LINE":2,"PASS LINE":2,"4":1.8,"5":1.4,"6":1.16,"8":1.16,"9":1.4,"10":1.8}
+		self.bet_names = ["COME LINE","PASS LINE","4","5","6","8","9","10"]
+		self.last_roll = 0
+		self.come_line_win = 0
 	
 	#Requests roll from player, forces player to roll really, no way to leave until you roll
 	def requestRoll(self):
@@ -110,20 +112,20 @@ class CrapsTable(object):
 		if type == "First Roll Win":
 			#payout if you need to payout
 			for player in self.players:
-				player.cash += player.bets["COME LINE"] * self.payout["COME LINE"]
+				player.cash += (player.bets["COME LINE"] * self.payout["COME LINE"])
 				player.bets["COME LINE"] = 0
 				player.bets["PASS LINE"] = 0
 		elif type == "First Roll Loss":
 			#payout if you need to payout
 			for player in self.players:
-				player.cash += player.bets["PASS LINE"] * self.payout["PASS LINE"]
+				player.cash += (player.bets["PASS LINE"] * self.payout["PASS LINE"])
 				player.bets["COME LINE"] = 0
 				player.bets["PASS LINE"] = 0
 		else:
 			roll = str(self.last_roll).upper()
 			if roll in self.payout.keys():
 				for player in self.players:
-					player.cash += player.bets[roll] * self.payout[roll]
+					player.cash += (player.bets[roll] * self.payout[roll])
 		return
 	
 	def removePlayer(self,player_name):
@@ -158,6 +160,8 @@ class CrapsTable(object):
 				self.resolveBets("First Roll Loss")
 			else:
 				print("Here we go! Waiting for a " + str(dice) + "!")
+				self.come_line_win = dice
+				self.resolveBets("Standard")
 			return
 		else:
 			if dice == 7:
@@ -165,10 +169,15 @@ class CrapsTable(object):
 				self.roll_count = 0
 				self.roller = self.players[(self.players.index(self.roller)+1)%self.player_count]
 				for player in self.players:
-					for bet in player.bets.values():
+					for bet in player.bets:
 						bet = 0
 			else:
 				print("Let's keep it going! Payouts!")
+				if dice == self.come_line_win:
+					print("Big win! Let's start again")
+					self.resolveBets("Standard")
+					self.resolveBets("First Roll Win")
+					self.roll_count = 0
 			self.resolveBets("Standard")
 			return
 		
