@@ -97,6 +97,9 @@ class CrapsTable(object):
 								player.placeBet(newBet,newAmount)
 								break
 					print("Bet added on %s for $%s" %(newBet,newAmountTxt))
+					newBet = ""
+					newAmountTxt = ""
+					newAmount = 0.0
 					time.sleep(1)
 					desire = input("Would you like place another bet? Yes or No?: ")
 				time.sleep(2)
@@ -216,7 +219,7 @@ class Game(object):
 				pCash = input("How much cash are they starting with?: ")
 				table.addPlayer(pName,pCash)
 				self.player_count += 1
-			removePlayers = input ("Any players leaving?")
+			removePlayers = input ("Any players leaving? Yes or No: ")
 			if removePlayers.upper() in ["YES","Y"]:
 				pName = input("Who is leaving?: ")
 				table.removePlayer(pName)
