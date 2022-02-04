@@ -115,12 +115,14 @@ class CrapsTable(object):
 				player.cash += (player.bets["COME LINE"] * self.payout["COME LINE"])
 				player.bets["COME LINE"] = 0
 				player.bets["PASS LINE"] = 0
+				self.roll_count = 0
 		elif type == "First Roll Loss":
 			#payout if you need to payout
 			for player in self.players:
 				player.cash += (player.bets["PASS LINE"] * self.payout["PASS LINE"])
 				player.bets["COME LINE"] = 0
 				player.bets["PASS LINE"] = 0
+				self.roll_count = 0
 		else:
 			roll = str(self.last_roll).upper()
 			if roll in self.payout.keys():
